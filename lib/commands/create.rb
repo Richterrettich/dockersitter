@@ -11,7 +11,7 @@ class Create < Thor
     File.expand_path('../templates',__dir__)
   end
 
-  option :base,
+  class_option :base,
     :type => :string,
     :desc => "the image which the app is based on.",
     :aliases => 'b',
