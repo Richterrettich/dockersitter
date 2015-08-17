@@ -11,35 +11,35 @@ class Create < Thor
     File.expand_path('../templates',__dir__)
   end
 
-  class_option :image,
+  option :base,
     :type => :string,
     :desc => "the image which the app is based on.",
-    :alias => 'i',
+    :aliases => 'b',
     :default => "ubuntu:14.04"
 
   class_option :env,
     :type => :array,
     :desc => 'additional environment variables',
-    :alias => 'e',
+    :aliases => 'e',
     :default => []
 
   class_option :packages,
     :type => :array,
     :desc => 'additional packages to install',
-    :alias => 'p',
+    :aliases => 'p',
     :default => []
 
-  class_option :volumes,
-    :type => :array,
-    :desc => 'the volumes your data-container will mount',
-    :alias => 'v',
-    :default => ["/var"]
-
+  
   desc "app APP_NAME", "create a new app."
   option :dockerfile,
     :type => :boolean,
     :desc => 'create a dockerfile for the app',
     :aliases => 'd'
+  option :volumes,
+    :type => :array,
+    :desc => 'the volumes your data-container will mount',
+    :aliases => 'v',
+    :default => ["/var"]
   def app(app_name)
     @app_name = app_name
     @user_email = extract_email
@@ -66,18 +66,21 @@ class Create < Thor
   def image(image_name)
     @user_email = extract_email
     @user_name = extract_name
-    image_path = "#{base_images_dir}/#{image_name}"
+    image_path = "#{base_images_dir}/#{image_name}/v1.0"
     empty_directory "#{image_path}/administration/installation"
     template "Dockerfile.erb","#{image_path}/Dockerfile"
     unless options[:packages].empty?
       options[:packages].each do |package|
-        FileUtils.ln("#{install_dir}/install_#{package}.sh", 
+        FileUtils.cp("#{install_dir}/install_#{package}.sh", 
                      "#{image_path}/administration/installation/install_#{package}.sh")
       end
 
-      FileUtils.ln("#{install_dir}/scriptrunner.sh", 
+      FileUtils.cp("#{install_dir}/scriptrunner.sh", 
                    "#{image_path}/administration/scriptrunner.sh")
     end
-
+    @image_name = image_name
+    @version = "1.0"
+    template "build.erb", "#{image_path}/build.sh"
+    FileUtils.chmod 0755, "#{image_path}/build.sh"
   end
 end

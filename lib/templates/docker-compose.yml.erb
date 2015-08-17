@@ -1,5 +1,5 @@
 app:
-  <%if options[:image]%>image: <%=options[:image]%> <%else%>build: .<%end%>
+  <%if options[:base]%>image: <%=options[:base]%> <%else%>build: .<%end%>
   volumes_from:
     - appdata
   environment: 
@@ -7,7 +7,7 @@ app:
     <%options[:env].each do | var |%><%=var.gsub('=',': ')%>
     <%end%>  
 appdata:
-  <%if options[:image]%>image: <%=options[:image]%> <%else%>build: .<%end%>
+  <%if options[:base]%>image: <%=options[:base]%> <%else%>build: .<%end%>
   volumes:
   <%options[:volumes].each do |volume|-%>
   - <%=volume%>
