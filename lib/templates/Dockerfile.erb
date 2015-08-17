@@ -1,0 +1,5 @@
+FROM <%=options[:image]%>
+MAINTAINER <%=@user_name%> <<%=@user_email%>> 
+ADD administration/installation /tmp/installation_scripts
+ADD administration/scriptrunner.sh /tmp/scriptrunner.sh
+RUN chmod +x /tmp/scriptrunner.sh && /bin/bash /tmp/scriptrunner.sh /tmp/installation_scripts

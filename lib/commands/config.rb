@@ -1,0 +1,9 @@
+PROJECT_ROOT = '/home/rene/docker'
+BACKUP_DIR = "#{PROJECT_ROOT}/backup"
+APP_DIR = "#{PROJECT_ROOT}/apps"
+ATTIC_DIR = "#{PROJECT_ROOT}/attic"
+ADMIN_DIR = "#{PROJECT_ROOT}/admin"
+TEMPLATE_DIR = "#{ADMIN_DIR}/templates"
+PACKAGE_DIR = "#{ADMIN_DIR}/installation_scripts"
+ROUTINE_DIR = "#{ADMIN_DIR}/routines"
+BASE_IMAGE_DIR = "#{PROJECT_ROOT}/base_images"

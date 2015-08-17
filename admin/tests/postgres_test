@@ -1,0 +1,20 @@
+#!/bin/bash
+
+base=/home/rene/docker
+
+$base/admin/bin/create_app postgrestest -i postgres -e POSTGRES_PASSWORD=mysecretpassword
+
+cp $base/admin/examples/postgres_backup $base/apps/postgrestest/administration/hooks/backup.d/app
+cp $base/admin/examples/postgres_restore $base/apps/postgrestest/administration/hooks/restore.d/app
+
+$base/admin/bin/start_app postgrestest
+
+sql=$(cat database.sql)
+
+sudo docker run -it --link postgrestest_app_1:postgres --rm postgres sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -c'
+
+$base/admin/bin/backup_app postgrestest
+$base/admin/bin/restore_app postgrestest
+
+
+$base/admin/bin/delete_app postgrestest

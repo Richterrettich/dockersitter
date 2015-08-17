@@ -1,0 +1,15 @@
+app:
+  <%if options[:image]%>image: <%=options[:image]%> <%else%>build: .<%end%>
+  volumes_from:
+    - appdata
+  environment: 
+    VIRTUAL_HOST: <%=@app_name%>.rene-richter.de
+    <%options[:env].each do | var |%><%=var.gsub('=',': ')%>
+    <%end%>  
+appdata:
+  <%if options[:image]%>image: <%=options[:image]%> <%else%>build: .<%end%>
+  volumes:
+  <%options[:volumes].each do |volume|-%>
+  - <%=volume%>
+  <%end-%>
+  command: /bin/echo datacontainer

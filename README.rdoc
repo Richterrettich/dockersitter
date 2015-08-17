@@ -1,0 +1,31 @@
+= docker_mgr
+
+* {Homepage}[https://rubygems.org/gems/docker_mgr]
+* {Documentation}[http://rubydoc.info/gems/docker_mgr/frames]
+* {Email}[mailto:Richterrettich at gmail.com]
+
+== Description
+
+TODO: Description
+
+== Features
+
+== Examples
+
+  require 'docker_mgr'
+
+== Requirements
+
+== Install
+
+  $ gem install docker_mgr
+
+== Synopsis
+
+  $ docker_mgr
+
+== Copyright
+
+Copyright (c) 2015 Rene Richter
+
+See LICENSE.txt for details.

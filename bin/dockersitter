@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+require 'command_router'
+require 'thor'
+
+
+CommandRouter::Main.start ARGV

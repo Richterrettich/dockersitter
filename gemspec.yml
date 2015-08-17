@@ -1,0 +1,17 @@
+name: dockersitter
+summary: "a management tool for docker"
+description: "generates scripts and projectstructure for docker"
+license: GPL
+authors: Rene Richter
+email: Richterrettich@gmail.com
+homepage: https://rubygems.org/gems/docker-mgr
+
+development_dependencies:
+  bundler: ~> 1.0
+  rake: ~> 0.8
+  rdoc: ~> 3.0
+  rspec: ~> 2.4
+  rubygems-tasks: ~> 0.2
+
+dependencies:
+  thor: ~> 0.19

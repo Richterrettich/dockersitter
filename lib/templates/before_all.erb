@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo docker-compose stop <%=services(@app_name).join(" ")%> && echo y | sudo docker-compose rm <%=services(@app_name).join(" ")%>

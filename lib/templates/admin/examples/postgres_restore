@@ -1,0 +1,4 @@
+#!/bin/bash
+
+PGPASSWORD="mysecretpassword"
+sudo docker run -it --link postgrestest_app_1:postgres --rm -e PGPASSWORD=$PGPASSWORD -v $1:/backup postgres /bin/bash -c 'psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -f /backup/backup.sql'
