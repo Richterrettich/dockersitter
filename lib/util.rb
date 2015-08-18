@@ -18,6 +18,7 @@ module DockerMgr
     end
 
 
+
     def backup_dir
       "#{root_dir}/backup" 
     end
@@ -46,6 +47,37 @@ module DockerMgr
     def install_dir
       "#{admin_dir}/installation_scripts"
     end
+
+    def proxy_dir
+      "#{root_dir}/proxy"
+    end
+
+
+    
+    def cert_dir
+      "#{proxy_dir}/ca_certs"
+    end
+
+    def vhost_dir
+      "#{proxy_dir}/vhost.d"
+    end
+
+    def config 
+      if File.exist? "#{admin_dir}/config.yml"
+        YAML.load_file "#{admin_dir}/config.yml"
+      else
+        result = Hash.new
+        result[:email] = extract_email
+        result[:name] = extract_name
+        host = "#{result[:name].gsub(/\s/,'-').downcase}.de"
+        puts "pleas enter your host-name (#{host})"
+        choice = STDIN.gets.chomp
+        result[:host] = choice.empty? ? host : choice
+        File.write "#{admin_dir}/config.yml", result.to_yaml
+        result
+      end
+    end
+
 
     def extract_date(entry)
       /_\d+\./.match(entry).to_s.chop[1..-1].to_i
@@ -98,12 +130,11 @@ module DockerMgr
 
 
     def extract_git_variable(name)
-      config = `git config --list`
-      result = config.lines.grep(/#{Regexp.quote(name)}/).map{|e| e.split('=')[1].chomp }.first
+      git_config = `git config --list`
+      result = git_config.lines.grep(/#{Regexp.quote(name)}/).map{|e| e.split('=')[1].chomp }.first
       unless result
         puts "please enter your #{name.split('.')[1]}"
         result = STDIN.gets.chomp
-        `git config --global #{name} #{result}`
       end
       result
     end

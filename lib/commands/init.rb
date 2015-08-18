@@ -14,6 +14,8 @@ class Init < Thor::Group
     empty_directory "docker/base_images"
     directory "admin","docker/admin"
     empty_directory "docker/ci_runner"
+    empty_directory "docker/proxy/ca_certs"
+    empty_directory "docker/proxy/vhosts.d"
     puts `git init docker`
   end
 

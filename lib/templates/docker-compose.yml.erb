@@ -3,7 +3,7 @@ app:
   volumes_from:
     - appdata
   environment: 
-    VIRTUAL_HOST: <%=@app_name%>.rene-richter.de
+    VIRTUAL_HOST: <%=@domain%>
     <%options[:env].each do | var |%><%=var.gsub('=',': ')%>
     <%end%>  
 appdata:

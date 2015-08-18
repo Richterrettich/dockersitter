@@ -40,15 +40,26 @@ class Create < Thor
     :desc => 'the volumes your data-container will mount',
     :aliases => 'v',
     :default => ["/var"]
+  option :cert,
+         :desc => "creates a ssl certificate for this app",
+         :aliases => 'c'
+  option :subdomain,
+         :desc => "the subdomain for this app",
+         :type => :string
+
   def app(app_name)
+    subdomain = options[:subdomain] ? options[:subdomain] : app_name.gsub(/\s/,"-").downcase
+    puts config[:host]
+    @domain = "#{subdomain}.#{config[:host]}"
     @app_name = app_name
-    @user_email = extract_email
-    @user_name = extract_name
+    @user_email = config[:email]
+    @user_name = config[:name]
     app_path = "#{apps_dir}/#{@app_name}"
     template "docker-compose.yml.erb","#{app_path}/docker-compose.yml"
     empty_directory "#{app_path}/administration/installation"
     empty_directory "#{app_path}/administration/hooks/backup.d"
     empty_directory "#{app_path}/administration/hooks/restore.d"
+
     template "Dockerfile.erb","#{app_path}/Dockerfile" if options[:dockerfile]
     unless options[:packages].empty?
       options[:packages].each do |package|
@@ -58,8 +69,14 @@ class Create < Thor
 
       FileUtils.ln("#{install_dir}/scriptrunner.sh", 
                    "#{app_path}/administration/scriptrunner.sh")
+      
     end
     append_to_file "#{routine_dir}/backup_routine", "docker_mgr backup_app #{app_name}"
+    create_file "#{vhost_dir}/#{app_name}"
+    if options[:cert]
+      app_cert = "#{cert_dir}/#{@domain}"
+      puts `openssl req -x509 -newkey rsa:4096 -subj '/CN=#{config[:host]}' -nodes -keyout #{app_cert}.key -out #{app_cert}.crt`
+    end
   end
   
   desc "image IMAGE_NAME","creates a new image."
