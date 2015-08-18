@@ -48,12 +48,10 @@ class Create < Thor
          :type => :string
 
   def app(app_name)
-    subdomain = options[:subdomain] ? options[:subdomain] : app_name.gsub(/\s/,"-").downcase
-    puts config[:host]
+    subdomain = options.fetch(subdomain,app_name.gsub(/\s/,"-").downcase)
     @domain = "#{subdomain}.#{config[:host]}"
     @app_name = app_name
-    @user_email = config[:email]
-    @user_name = config[:name]
+    @user_email,@user_name = config.values_at(:email,:name)
     app_path = "#{apps_dir}/#{@app_name}"
     template "docker-compose.yml.erb","#{app_path}/docker-compose.yml"
     empty_directory "#{app_path}/administration/installation"
