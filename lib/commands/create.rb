@@ -72,8 +72,10 @@ class Create < Thor
     append_to_file "#{routine_dir}/backup_routine", "docker_mgr backup_app #{app_name}"
     create_file "#{vhost_dir}/#{app_name}"
     if options[:cert]
-      app_cert = "#{cert_dir}/#{@domain}"
-      puts `openssl req -x509 -newkey rsa:4096 -subj '/CN=#{config[:host]}' -nodes -keyout #{app_cert}.key -out #{app_cert}.crt`
+      FileUtils.cd "#{admin_dir}/ca" do
+	      puts "#{admin_dir}/ca/sign.sh"
+	      puts `./sign.sh #{@domain}`
+      end
     end
   end
   
