@@ -8,7 +8,7 @@ homepage: https://rubygems.org/gems/docker-mgr
 
 development_dependencies:
   bundler: ~> 1.0
-  rake: ~> 0.8
+  rake: ~> 10.4
   rdoc: ~> 3.0
   rspec: ~> 2.4
   rubygems-tasks: ~> 0.2

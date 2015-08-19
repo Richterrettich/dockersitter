@@ -59,7 +59,7 @@ module DockerMgr
     end
 
     def vhost_dir
-      "#{proxy_dir}/vhost.d"
+      "#{proxy_dir}/vhosts.d"
     end
 
     def config 
@@ -146,6 +146,23 @@ module DockerMgr
     def extract_name
       extract_git_variable("user.name")
     end
+
+    def generate_ca_installer
+      directory "install_certificate","#{root_dir}/install_certificate"
+      FileUtils.cp "#{admin_dir}/ca/rootCA.crt","install_certificate"
+      package_tar "install_certificate"
+      FileUtils.rm_rf "install_certificate"
+    end
+
+    def package_tar(dir_name,current_dir = nil)
+      if current_dir
+        `tar -cf #{dir_name}.tar -C #{current_dir} #{dir_name}` 
+      else
+        `tar -cf #{dir_name}.tar #{dir_name}` 
+      end
+    end
+
+
 
   end
 end
