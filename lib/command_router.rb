@@ -2,7 +2,7 @@ require "commands/init"
 require 'thor'
 require 'commands/create'
 require 'commands/delete'
-require 'commands/generate_backup_scripts'
+require 'commands/generate'
 require 'commands/backup_app.rb'
 require 'commands/restore_app.rb'
 require 'commands/start.rb'
@@ -16,7 +16,7 @@ module CommandRouter
 
     register(Init, 'init', 'init', 'initializes a docker-project.')
     register(Create,'create','create','creates a new docker-unit.')
-    register(GenerateBackupScripts,'g','g','generates scripts')
+    register(Generate,'generate','generate','generates scripts')
     register(Delete,'delete','delete','deletes a docker-unit.')
     register BackupApp,'backup','backup','creates a backup of the given app.'
     register RestoreApp, 'restore','restore','restores an app.'

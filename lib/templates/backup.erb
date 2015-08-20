@@ -1,8 +1,8 @@
 #!/bin/bash
 
-<%volumes(app_name,@service).each_with_index do |v,i|%>
+<%volumes(@app_name,@service).each_with_index do |v,i|%>
 mkdir -p $1/<%="#{@service}/#{@service}_#{i}"%>
 <%end%>
 
 data_container_id=$(sudo docker-compose ps -q <%=@service%>)
-sudo docker run --rm --volumes-from $data_container_id <%=volumes(app_name,@service).each_with_index.map{|volume,i|"-v $1/#{@service}/#{@service}_#{i}:/backup/#{@service}_#{i}"}.join(" ")%> ubuntu:14.04 /bin/bash -c '<%=volumes(app_name,@service).each_with_index.map{|v,i|"echo \"/#{v}\" > /backup/#{@service}_#{i}/backup.descriptor && tar -czpf /backup/#{@service}_#{i}/#{@service}_#{i}.tar.gz /#{v}"}.join(" && ")%>'
+sudo docker run --rm --volumes-from $data_container_id <%=volumes(@app_name,@service).each_with_index.map{|volume,i|"-v $1/#{@service}/#{@service}_#{i}:/backup/#{@service}_#{i}"}.join(" ")%> ubuntu:14.04 /bin/bash -c '<%=volumes(@app_name,@service).each_with_index.map{|v,i|"echo \"/#{v}\" > /backup/#{@service}_#{i}/backup.descriptor && tar -czpf /backup/#{@service}_#{i}/#{@service}_#{i}.tar.gz /#{v}"}.join(" && ")%>'
