@@ -70,7 +70,7 @@ class Create < Thor
       
     end
     append_to_file "#{routine_dir}/backup_routine", "docker_mgr backup_app #{app_name}"
-    create_file "#{vhost_dir}/#{app_name}"
+    create_file "#{vhost_dir}/#{@domain}"
     if options[:cert]
       FileUtils.cd "#{admin_dir}/ca" do
 	      puts "#{admin_dir}/ca/sign.sh"
