@@ -1,6 +1,9 @@
-FROM <%=options[:base]%>
+FROM <%=@base%>
 MAINTAINER <%=@user_name%> <<%=@user_email%>> 
 ADD administration/installation /tmp/installation_scripts
 ADD administration/scriptrunner.sh /tmp/scriptrunner.sh
 RUN chmod +x /tmp/scriptrunner.sh && /bin/bash /tmp/scriptrunner.sh /tmp/installation_scripts
+ADD administration/certificates /tmp/certificates
+ADD administration/trust.sh /tmp/trust.sh
+RUN chmod +x /tmp/trust.sh && /bin/bash /tmp/trust.sh /tmp/certificates
 RUN rm -rf /tmp/*

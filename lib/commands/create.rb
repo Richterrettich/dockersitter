@@ -15,7 +15,7 @@ class Create < Thor
     :type => :string,
     :desc => "the image which the app is based on.",
     :aliases => 'b',
-    :default => "ubuntu:14.04"
+    :default => "base:1.0"
 
   class_option :env,
     :type => :array,
@@ -31,27 +31,19 @@ class Create < Thor
 
   
   desc "app APP_NAME", "create a new app."
-  option :dockerfile,
-    :type => :boolean,
-    :desc => 'create a dockerfile for the app',
-    :aliases => 'd'
-  option :volumes,
-    :type => :array,
-    :desc => 'the volumes your data-container will mount',
-    :aliases => 'v',
-    :default => ["/var"]
-  option :cert,
-         :desc => "creates a ssl certificate for this app",
-         :aliases => 'c'
-  option :subdomain,
-         :desc => "the subdomain for this app",
-         :type => :string
-
+  option :dockerfile,:type => :boolean,
+	 :desc => 'create a dockerfile for the app',:aliases => 'd'
+  option :volumes,:type => :array,
+    	 :desc => 'the volumes your data-container will mount',:aliases => 'v',
+    	 :default => ["/var"]
+  option :cert,:desc => "creates a ssl certificate for this app",:aliases =>'c'
+  option :subdomain,:desc => "the subdomain for this app",:type => :string
   def app(app_name)
     subdomain = options.fetch(subdomain,app_name.gsub(/\s/,"-").downcase)
     @domain = "#{subdomain}.#{config[:host]}"
     @app_name = app_name
     @user_email,@user_name = config.values_at(:email,:name)
+    @base = options[:base]
     app_path = "#{apps_dir}/#{@app_name}"
     template "docker-compose.yml.erb","#{app_path}/docker-compose.yml"
     empty_directory "#{app_path}/administration/installation"
@@ -82,8 +74,8 @@ class Create < Thor
   
   desc "image IMAGE_NAME","creates a new image."
   def image(image_name)
-    @user_email = extract_email
-    @user_name = extract_name
+    @user_email,@user_name = config.values_at(:email,:name)
+    @base = options[:base]
     image_path = "#{base_images_dir}/#{image_name}/v1.0"
     empty_directory "#{image_path}/administration/installation"
     template "Dockerfile.erb","#{image_path}/Dockerfile"
@@ -95,6 +87,9 @@ class Create < Thor
 
       FileUtils.cp("#{install_dir}/scriptrunner.sh", 
                    "#{image_path}/administration/scriptrunner.sh")
+      FileUtils.cp("#{admin_dir}/trust.sh", 
+                   "#{image_path}/administration/trust.sh")
+      empty_directory("#{image_path}/administration/certificates")
     end
     @image_name = image_name
     @version = "1.0"

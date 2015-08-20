@@ -5,7 +5,7 @@ require 'util'
 class Init < Thor::Group
   include Thor::Actions
   include DockerMgr::Util
-    
+
   def self.source_root
     File.expand_path('../templates',__dir__)
   end
@@ -27,9 +27,29 @@ class Init < Thor::Group
     chmod 'docker/admin/ca/sign.sh',0755
     puts `git init docker`
     FileUtils.cd 'docker' do 
-      puts FileUtils.pwd
       generate_ca_installer
-    end
-  end
+      image_name = 'base'
+      @user_email,@user_name = config.values_at(:email,:name)
+      image_path = "#{base_images_dir}/#{image_name}/v1.0"
+      empty_directory "#{image_path}/administration/installation"
+      @base = "ubuntu:14.04"
+      template "Dockerfile.erb","#{image_path}/Dockerfile"
+      %w(curl git).each do |package|
+        FileUtils.cp("#{install_dir}/install_#{package}.sh", 
+                     "#{image_path}/administration/installation/install_#{package}.sh")
+      end
 
+      FileUtils.cp("#{install_dir}/scriptrunner.sh", 
+                   "#{image_path}/administration/scriptrunner.sh")
+      FileUtils.cp("#{admin_dir}/trust.sh","#{image_path}/administration/trust.sh")
+      FileUtils.mkdir("#{image_path}/administration/certificates")
+      FileUtils.cp("#{admin_dir}/ca/rootCA.crt","#{image_path}/administration/certificates/rootCA.crt")
+      @image_name = image_name
+      @version = "1.0"
+      template "build.erb", "#{image_path}/build.sh"
+      FileUtils.chmod 0755, "#{image_path}/build.sh"
+    end
+
+
+  end
 end

@@ -1,5 +1,6 @@
 require 'yaml'
 require 'fileutils'
+require 'pathname'
 
 module DockerMgr
 
@@ -7,17 +8,21 @@ module DockerMgr
 
     def root_dir 
       return @root_dir if @root_dir
-      error_message = "not within project tree"
-      curr_dir = Dir.pwd
-      return curr_dir if curr_dir.end_with? "/docker"
-      dir_parts = curr_dir.split "/docker/"
-      raise error_message if dir_parts == 1
-      possible_root = "#{dir_parts[0]}/docker"
-      raise error_message unless (Dir.entries(possible_root) && %w{admin backup apps}).length == 3
-      @root_dir = possible_root
+      search_dir = Dir.pwd
+      while search_dir && !root_dir_condition(search_dir)
+        parent = File.dirname(search_dir)
+        # project_root wird entweder der Root-pfad oder false. Wenn es false
+        # wird, bricht die Schleife ab. Vgl. Rails
+        search_dir = (parent != search_dir) && parent
+      end
+      project_root = search_dir if root_dir_condition(search_dir)
+      raise 'you are not within a presentation-project.' unless project_root
+      @root_dir = Pathname.new(File.realpath project_root)
     end
 
-
+    def root_dir_condition(search_dir)
+      search_dir.is_a?(String) && search_dir.end_with?("/docker") && (Dir.entries(search_dir) && %w{admin backup apps}).length == 3
+    end
 
     def backup_dir
       "#{root_dir}/backup" 
@@ -53,7 +58,7 @@ module DockerMgr
     end
 
 
-    
+
     def cert_dir
       "#{proxy_dir}/ca_certs"
     end
@@ -85,18 +90,18 @@ module DockerMgr
 
     def service_hooks_for(app_name,type)
       Dir.entries("#{apps_dir}/#{app_name}/administration/hooks/#{type}.d")
-      .select {| entry | !entry.start_with?(".") && entry != "before_all" && entry != "after_all" }
+        .select {| entry | !entry.start_with?(".") && entry != "before_all" && entry != "after_all" }
     end
 
     def services(app_name)
       YAML.load(File.read("#{apps_dir}/#{app_name}/docker-compose.yml"))
-      .each_key
-      .select {|k| !k.end_with?("data")}
+        .each_key
+        .select {|k| !k.end_with?("data")}
     end
 
     def data_services(app_name)
       YAML.load(File.read("#{apps_dir}/#{app_name}/docker-compose.yml")).each_key
-      .select {|k| k.end_with?("data")}
+        .select {|k| k.end_with?("data")}
     end
 
     def volumes(app_name,service_name)
