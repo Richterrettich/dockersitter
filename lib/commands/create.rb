@@ -76,6 +76,7 @@ class Create < Thor
 	      puts "#{admin_dir}/ca/sign.sh"
 	      puts `./sign.sh #{@domain}`
       end
+      chmod "#{proxy_dir}/certs/#{@domain}.key",0600
     end
   end
   
