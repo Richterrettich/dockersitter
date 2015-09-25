@@ -61,7 +61,7 @@ class Create < Thor
                    "#{app_path}/administration/scriptrunner.sh")
       
     end
-    append_to_file "#{routine_dir}/backup_routine", "docker_mgr backup_app #{app_name}"
+    append_to_file "#{routine_dir}/backup_routine", "dockersitter backup_app #{app_name}"
     create_file "#{vhost_dir}/#{@domain}"
     if options[:cert]
       FileUtils.cd "#{admin_dir}/ca" do
@@ -96,4 +96,7 @@ class Create < Thor
     template "build.erb", "#{image_path}/build.sh"
     FileUtils.chmod 0755, "#{image_path}/build.sh"
   end
+
+
+
 end
