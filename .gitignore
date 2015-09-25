@@ -3,3 +3,5 @@ html/
 pkg/
 vendor/cache/*.gem
 config.yml
+
+**/*.DS_Store
