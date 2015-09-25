@@ -49,18 +49,8 @@ class Create < Thor
     empty_directory "#{app_path}/administration/installation"
     empty_directory "#{app_path}/administration/hooks/backup.d"
     empty_directory "#{app_path}/administration/hooks/restore.d"
-
     template "Dockerfile.erb","#{app_path}/Dockerfile" if options[:dockerfile]
-    unless options[:packages].empty?
-      options[:packages].each do |package|
-        FileUtils.ln("#{install_dir}/install_#{package}.sh", 
-                     "#{app_path}/administration/installation/install_#{package}.sh")
-      end
-
-      FileUtils.ln("#{install_dir}/scriptrunner.sh", 
-                   "#{app_path}/administration/scriptrunner.sh")
-      
-    end
+    add_packages(app_path) unless options[:packages].empty?
     append_to_file "#{routine_dir}/backup_routine", "dockersitter backup_app #{app_name}"
     create_file "#{vhost_dir}/#{@domain}"
     if options[:cert]
@@ -79,24 +69,25 @@ class Create < Thor
     image_path = "#{base_images_dir}/#{image_name}/v1.0"
     empty_directory "#{image_path}/administration/installation"
     template "Dockerfile.erb","#{image_path}/Dockerfile"
-    unless options[:packages].empty?
-      options[:packages].each do |package|
-        FileUtils.cp("#{install_dir}/install_#{package}.sh", 
-                     "#{image_path}/administration/installation/install_#{package}.sh")
-      end
-
-      FileUtils.cp("#{install_dir}/scriptrunner.sh", 
-                   "#{image_path}/administration/scriptrunner.sh")
-      FileUtils.cp("#{admin_dir}/trust.sh", 
-                   "#{image_path}/administration/trust.sh")
-      empty_directory("#{image_path}/administration/certificates")
-    end
+    add_packages(image_path) unless options[:packages].empty?
+    FileUtils.cp("#{admin_dir}/trust.sh", 
+                 "#{image_path}/administration/trust.sh")
+    empty_directory("#{image_path}/administration/certificates")
     @image_name = image_name
     @version = "1.0"
     template "build.erb", "#{image_path}/build.sh"
     FileUtils.chmod 0755, "#{image_path}/build.sh"
   end
 
-
+  no_tasks do 
+    def add_packages(path) 
+      options[:packages].each do |package|
+        FileUtils.cp("#{install_dir}/install_#{package}.sh", 
+                     "#{path}/administration/installation/install_#{package}.sh")
+      end
+      FileUtils.cp("#{install_dir}/scriptrunner.sh", 
+                   "#{path}/administration/scriptrunner.sh")
+    end
+  end
 
 end
