@@ -59,7 +59,7 @@ class Init < Thor::Group
     def create_image(image_path,*packages)
       empty_directory "#{image_path}/administration/installation"
       template "Dockerfile.erb","#{image_path}/Dockerfile"
-      add_packages(image_path,packages)
+      add_packages(image_path,*packages)
       FileUtils.cp("#{admin_dir}/trust.sh","#{image_path}/administration/trust.sh")
       FileUtils.mkdir("#{image_path}/administration/certificates")
       FileUtils.cp("#{admin_dir}/ca/rootCA.crt","#{image_path}/administration/certificates/rootCA.crt")
