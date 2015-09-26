@@ -31,6 +31,10 @@ module DockerMgr
     def base_images_dir
       "#{root_dir}/base_images"
     end
+    
+    def runner_dir
+      "#{root_dir}/ci_runner"
+    end
 
 
     def attic_dir
@@ -167,7 +171,19 @@ module DockerMgr
       end
     end
 
-
+    def add_packages(path,*packages) 
+      packages.each_with_index do |package,index|
+        FileUtils.cp("#{install_dir}/install_#{package}.sh", 
+                     "#{path}/administration/installation/#{index}_install_#{package}.sh")
+      end
+      FileUtils.cp("#{install_dir}/scriptrunner.sh", 
+                   "#{path}/administration/scriptrunner.sh")
+    end
+    def add_trust(path)
+      FileUtils.cp("#{admin_dir}/trust.sh", 
+                   "#{path}/administration/trust.sh")
+      empty_directory("#{path}/administration/certificates")
+    end
 
   end
 end

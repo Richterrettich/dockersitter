@@ -50,18 +50,39 @@ class Create < Thor
     empty_directory "#{app_path}/administration/hooks/backup.d"
     empty_directory "#{app_path}/administration/hooks/restore.d"
     template "Dockerfile.erb","#{app_path}/Dockerfile" if options[:dockerfile]
-    add_packages(app_path) unless options[:packages].empty?
+    add_packages(app_path,options[:packages]) unless options[:packages].empty?
     append_to_file "#{routine_dir}/backup_routine", "dockersitter backup_app #{app_name}"
     create_file "#{vhost_dir}/#{@domain}"
     if options[:cert]
       FileUtils.cd "#{admin_dir}/ca" do
-	      puts "#{admin_dir}/ca/sign.sh"
 	      puts `./sign.sh #{@domain}`
       end
       chmod "#{proxy_dir}/certs/#{@domain}.key",0600
     end
   end
-  
+
+  desc "runner RUNNER_NAME", "create a new runner."
+  option :dockerfile,:type => :boolean,
+	 :desc => 'create a dockerfile for the app',:aliases => 'd'
+  option :volumes,:type => :array,
+    	 :desc => 'the volumes your data-container will mount',:aliases => 'v',
+    	 :default => ["/var"]
+  option :base,
+    :type => :string,
+    :desc => "the image which the runner is based on.",
+    :aliases => 'b',
+    :default => "runner_base:1.0"
+  def runner(runner_name)
+    @app_name = runner_name
+    @user_email,@user_name = config.values_at(:email,:name)
+    @base = options[:base]
+    runner_path = "#{runner_dir}/#{@app_name}"
+    template "docker-compose.yml.erb","#{runner_path}/docker-compose.yml"
+    empty_directory "#{runner_path}/administration/installation"
+    template "Dockerfile.erb","#{app_path}/Dockerfile" if options[:dockerfile]
+    add_packages(app_path,options[:packages]) unless options[:packages].empty?
+  end
+
   desc "image IMAGE_NAME","creates a new image."
   def image(image_name)
     @user_email,@user_name = config.values_at(:email,:name)
@@ -70,24 +91,11 @@ class Create < Thor
     empty_directory "#{image_path}/administration/installation"
     template "Dockerfile.erb","#{image_path}/Dockerfile"
     add_packages(image_path) unless options[:packages].empty?
-    FileUtils.cp("#{admin_dir}/trust.sh", 
-                 "#{image_path}/administration/trust.sh")
-    empty_directory("#{image_path}/administration/certificates")
+    add_trust(image_path)
     @image_name = image_name
     @version = "1.0"
     template "build.erb", "#{image_path}/build.sh"
     FileUtils.chmod 0755, "#{image_path}/build.sh"
-  end
-
-  no_tasks do 
-    def add_packages(path) 
-      options[:packages].each do |package|
-        FileUtils.cp("#{install_dir}/install_#{package}.sh", 
-                     "#{path}/administration/installation/install_#{package}.sh")
-      end
-      FileUtils.cp("#{install_dir}/scriptrunner.sh", 
-                   "#{path}/administration/scriptrunner.sh")
-    end
   end
 
 end
