@@ -13,7 +13,6 @@ if [ $LAST_CHAR != "/" ]; then
 	DIR=$DIR/;
 fi
 
-for f in $DIR*
-do
+for f in $(ls $DIR*| sort -t _ -k 1 -g); do 
 	sh $f;
 done
