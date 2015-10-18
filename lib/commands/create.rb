@@ -1,7 +1,7 @@
 require 'optparse'
 require 'fileutils'
 require 'erb'
-require_relative '../util'
+require 'util'
 
 class Create < Thor 
   include Thor::Actions
@@ -72,11 +72,11 @@ class Create < Thor
     :desc => "the image which the runner is based on.",
     :aliases => 'b',
     :default => "runner_base:1.0"
-  option :serve_name,
+  option :server_name,
     :type => :string,
     :desc => 'the ci-server, the runner belongs to',
-    :aliases => 's',
-    :default => "gitlab.#{config[:host]}/ci"
+    :aliases => 's'
+    #:default => "gitlab.#{config[:host]}/ci"
   option :token,
     :type => :string,
     :desc => 'the token to register this runner',
