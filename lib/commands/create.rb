@@ -66,13 +66,23 @@ class Create < Thor
 	 :desc => 'create a dockerfile for the app',:aliases => 'd'
   option :volumes,:type => :array,
     	 :desc => 'the volumes your data-container will mount',:aliases => 'v',
-    	 :default => ["/var"]
+    	 :default => ["./data:/data"]
   option :base,
     :type => :string,
     :desc => "the image which the runner is based on.",
     :aliases => 'b',
     :default => "runner_base:1.0"
-  def runner(runner_name)
+  option :serve_name,
+    :type => :string,
+    :desc => 'the ci-server, the runner belongs to',
+    :aliases => 's',
+    :default => "gitlab.#{config[:host]}/ci"
+  option :token,
+    :type => :string,
+    :desc => 'the token to register this runner',
+    :aliases => 't',
+    :required => true
+  def runner(runner_name,token)
     @app_name = runner_name
     @user_email,@user_name = config.values_at(:email,:name)
     @base = options[:base]
@@ -80,7 +90,15 @@ class Create < Thor
     template "docker-compose.yml.erb","#{runner_path}/docker-compose.yml"
     empty_directory "#{runner_path}/administration/installation"
     template "Dockerfile.erb","#{app_path}/Dockerfile" if options[:dockerfile]
-    add_packages(app_path,options[:packages]) unless options[:packages].empty?
+    add_packages(runner_path,options[:packages]) unless options[:packages].empty?
+    FileUtils.cd(runner_path) do 
+      command = %Q(register --non-interactive 
+                   --url "https://#{options['server_name']}" 
+                   --registration-token "#{options['token']}" 
+                   --description "multi-runner" 
+                   --executor "shell")
+      puts `docker-compose run service #{command}`
+    end
   end
 
   desc "image IMAGE_NAME","creates a new image."

@@ -51,6 +51,6 @@ class RestoreApp < Thor::Group
       puts exec_hook(@app_name,"restore","after_all")
     end
 
-    `sudo rm -rf #{app_backup_tmp_dir}`
+    `rm -rf #{app_backup_tmp_dir}`
   end
 end

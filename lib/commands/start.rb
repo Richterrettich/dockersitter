@@ -22,7 +22,7 @@ class Start < Thor::Group
     def start_app(app_name)
       app_path = "#{apps_dir}/#{app_name}"
       FileUtils.cd app_path do
-        puts `sudo docker-compose up -d`
+        puts `docker-compose up -d`
       end
     end
   end

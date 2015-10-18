@@ -12,7 +12,7 @@ class Delete < Thor
     choice = ask "do you want to remove #{@app_name}? (y,N)"
     abort "aborting" unless choice == 'y'
     FileUtils.cd "#{apps_dir}/#{@app_name}" do
-      puts `echo y | sudo docker-compose rm` 
+      puts `docker-compose -f rm` 
     end
     puts `tar -zcf #{attic_dir}/#{@app_name}.tar -C #{apps_dir} #{@app_name}`
     FileUtils.rm_rf "#{apps_dir}/#{@app_name}"
